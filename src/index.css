@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--font-family);
+  background: #ffffff;
+  color: var(--text-color);
+  transition: background 0.3s, color 0.3s;
+}
+
+:root {
+  /* primary theme colors */
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --primary-color: #667eea;
+  --secondary-color: #764ba2;
+  --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  --bg-color: #ffffff;
+  --card-bg: #ffffff;
+  --text-color: #333;
+  --muted-text: #666;
+  --border-radius: 10px;
+  --transition-fast: 0.2s ease;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* global button base style */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
