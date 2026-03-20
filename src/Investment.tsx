@@ -217,7 +217,10 @@ const InvestmentPage: React.FC<Props> = ({ currentCompany, user }) => {
             onChange={e => setSearchTerm(e.target.value)}
             className="search-input"
           />
-          <button onClick={() => { setShowForm(true); setEditing(null); }} className="btn-primary">Add Investment</button>
+          <button onClick={() => { 
+            setShowForm(true); 
+            setEditing(null); 
+          }} className="btn-primary">Add Investment</button>
         </div>
       </div>
 
@@ -275,7 +278,10 @@ const InvestmentPage: React.FC<Props> = ({ currentCompany, user }) => {
                   <td>{inv.status}</td>
                   <td>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <button onClick={() => { setEditing(inv); setShowForm(true); }}>Edit</button>
+                      <button onClick={() => { 
+                        setEditing(inv); 
+                        setShowForm(true); 
+                      }}>Edit</button>
                       <button onClick={() => handleDelete(inv.id)}>Delete</button>
                     </div>
                   </td>
@@ -341,6 +347,22 @@ const InvestmentForm: React.FC<FormProps> = ({ defaultCompany, initialValues, on
       shares: shares === '' ? undefined : Number(shares),
       dividendRate: dividendRate === '' ? undefined : Number(dividendRate)
     });
+  };
+
+  // Helper functions for calculations
+  const calculateInterest = (amount: number, rate: number, months: number) => {
+    const years = months / 12;
+    return amount * (rate / 100) * years;
+  };
+
+  const calculateCapitalGain = (buyingPrice?: number, sellingPrice?: number) => {
+    if (!buyingPrice && !sellingPrice) return 0;
+    return (sellingPrice || 0) - (buyingPrice || 0);
+  };
+
+  const calculateDividend = (shares?: number, dividendRate?: number) => {
+    if (!shares || !dividendRate) return 0;
+    return shares * dividendRate;
   };
 
   const interestValue = calculateInterest(Number(amount), Number(rate), Number(durationMonths));

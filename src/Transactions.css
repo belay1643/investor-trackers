@@ -114,6 +114,26 @@
   text-transform: capitalize;
 }
 
+.delete-btn {
+  padding: 6px 10px;
+  border: 1px solid #d32f2f;
+  color: #fff;
+  background: #e53935;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.83rem;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.delete-btn:hover {
+  transform: translateY(-1px);
+  background: #c62828;
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+}
+
 /* modal overlay for add transaction form */
 .modal-overlay {
   position: fixed;

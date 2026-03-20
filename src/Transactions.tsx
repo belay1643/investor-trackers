@@ -92,12 +92,15 @@ function Transactions({ currentCompany }: Props) {
         if (!confirm('Delete this transaction?')) return;
         try {
             const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error('delete failed');
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`delete failed ${res.status}: ${text}`);
+            }
             setTransactions(s => s.filter(t => t.id !== id && t._id !== id));
             setFilteredTransactions(s => s.filter(t => t.id !== id && t._id !== id));
-        } catch (err) {
-            alert('Could not delete transaction');
-            console.error(err);
+        } catch (err: any) {
+            alert(`Could not delete transaction: ${err?.message || 'unknown error'}`);
+            console.error('Delete transaction error', err);
         }
     };
 
@@ -268,7 +271,7 @@ function Transactions({ currentCompany }: Props) {
                                     <td>{tx.status}</td>
                                     <td>
                                         {(tx.id || tx._id) && (
-                                          <button onClick={() => handleDelete(tx.id || tx._id)}>Delete</button>
+                                          <button className="delete-btn" onClick={() => handleDelete(tx.id || tx._id)}>Delete</button>
                                         )}
                                     </td>
                                 </tr>

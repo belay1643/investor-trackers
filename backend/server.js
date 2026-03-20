@@ -44,6 +44,7 @@ async function connectDb() {
         action: entry.action || '',
         actionType: entry.actionType || 'UPDATE',
         details: entry.details || '',
+        ip: entry.ip || '',
         oldValue: entry.oldValue || '',
         newValue: entry.newValue || ''
       };
@@ -391,6 +392,43 @@ app.put('/api/transactions/:id', async (req, res) => {
   }
 });
 
+// delete route
+app.delete('/api/transactions/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid transaction id' });
+    }
+
+    const existing = await transactionsCollection.findOne({ _id: new ObjectId(id) });
+    if (!existing) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    const result = await transactionsCollection.deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Transaction not found or already deleted' });
+    }
+
+    if (req.app && typeof req.app.locals.insertAuditLog === 'function') {
+      req.app.locals.insertAuditLog({
+        user: existing.requestedBy || 'System',
+        company: existing.company || 'Unknown',
+        action: 'Delete Transaction',
+        actionType: 'DELETE',
+        details: `Deleted transaction ${id}`,
+        oldValue: JSON.stringify(existing),
+        newValue: ''
+      });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('delete transaction error', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // bulk insert route
 app.post('/api/transactions/bulk', async (req, res) => {
   try {
@@ -523,12 +561,36 @@ app.post('/api/login', async (req, res) => {
 
     // Audit log: user logged in
     if (req.app && typeof req.app.locals.insertAuditLog === 'function') {
+      const candidate =
+        (req.headers['x-forwarded-for'] || '').toString().split(',')[0].trim() ||
+        (req.headers['x-real-ip'] || '').toString().trim() ||
+        req.connection?.remoteAddress ||
+        req.socket?.remoteAddress ||
+        req.ip ||
+        '';
+
+      let remoteIp = candidate;
+      if (!remoteIp || remoteIp.length === 0) {
+        remoteIp = '0.0.0.0';
+      } else if (remoteIp === '::1' || remoteIp === '127.0.0.1') {
+        remoteIp = '192.168.137.27'; // Hardcoded for demo/testing as requested
+      } else if (remoteIp.startsWith('::ffff:')) {
+        remoteIp = remoteIp.substring(7);
+      }
+
+      // Keep IPv4 format if only v6 is passed
+      const ipv4Match = remoteIp.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/);
+      if (ipv4Match) {
+        remoteIp = ipv4Match[0];
+      }
+
       req.app.locals.insertAuditLog({
         user: user.fullName || user.email || 'Unknown',
         company: user.company || 'System',
         action: 'User login',
         actionType: 'LOGIN',
-        details: `IP: ${req.ip} ${req.headers['user-agent'] ? `ua:${req.headers['user-agent']}` : ''}`,
+        ip: remoteIp,
+        details: `IP: ${remoteIp} ${req.headers['user-agent'] ? `ua:${req.headers['user-agent']}` : ''}`,
         oldValue: '',
         newValue: ''
       });

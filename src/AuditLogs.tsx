@@ -8,6 +8,7 @@ interface AuditLog {
     action: string;
     actionType: 'UPDATE' | 'CREATE' | 'APPROVE' | 'LOGIN' | 'EXPORT' | 'DELETE';
     details: string;
+    ip?: string;
     oldValue?: string;
     newValue?: string;
     company: string;
@@ -215,6 +216,7 @@ function AuditLogs({ currentCompany, companies }: Props) {
                                 <th>User</th>
                                 <th>Company</th>
                                 <th>INV Type</th>
+                                <th>IP</th>
                                 <th>Date</th>
                                 <th>New Value</th>
                                 <th>Old Value</th>
@@ -232,6 +234,7 @@ function AuditLogs({ currentCompany, companies }: Props) {
                                             </span>
                                             <div className="details-main">{log.action}</div>
                                         </td>
+                                        <td className="ip-cell">{log.ip || '-'}</td>
                                         <td className="timestamp-cell">{formatDateTime(log.timestamp)}</td>
                                         <td className="details-sub">
                                             <div className="audit-json">{renderValueLines(log.newValue || '')}</div>
@@ -243,7 +246,7 @@ function AuditLogs({ currentCompany, companies }: Props) {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={6} className="no-data">
+                                    <td colSpan={7} className="no-data">
                                         No audit logs found
                                     </td>
                                 </tr>

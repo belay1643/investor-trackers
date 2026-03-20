@@ -45,7 +45,7 @@
   width: 640px;
   max-width: 95%;
 }
-..form-grid {
+.form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
